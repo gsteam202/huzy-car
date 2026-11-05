@@ -1,0 +1,755 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum Country {
+  KOREA
+  IMPORTED
+}
+
+enum VehicleType {
+  SEDAN
+  SUV
+  RV
+  COMPACT
+  HATCHBACK
+  WAGON
+  COUPE
+  CONVERTIBLE
+  TRUCK
+  VAN
+}
+
+enum FuelType {
+  GASOLINE
+  DIESEL
+  HYBRID
+  ELECTRIC
+  LPG
+  HYDROGEN
+}
+
+enum AccidentHistory {
+  NONE
+  SIMPLE_REPAIR
+  MAJOR_ACCIDENT
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  REMOVED
+}
+
+enum ConfidenceLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum FinancingProductType {
+  STANDARD
+  ZERO_INTEREST
+  BALLOON
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
+}
+
+// ----------------------------------------------------
+// 1. Users & Auth
+// ----------------------------------------------------
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique @db.VarChar(191)
+  passwordHash     String?           @db.VarChar(255)
+  nickname         String            @unique @db.VarChar(50)
+  role             Role              @default(USER)
+  avatarUrl        String?           @db.VarChar(500)
+  marketingConsent Boolean           @default(false)
+  termsAgreedAt    DateTime          @default(now())
+  privacyAgreedAt  DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  preferences      UserPreference?
+  financingScenarios FinancingScenario[]
+  budgetSearches   BudgetSearch[]
+  savedRecommendations SavedRecommendation[]
+  favorites        FavoriteCar[]
+  posts            Post[]
+  comments         Comment[]
+  likes            PostLike[]
+  reports          PostReport[]      @relation("UserReports")
+  notifications    Notification[]
+  auditLogs        AdminAuditLog[]   @relation("AdminAudits")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String  @db.VarChar(50)
+  provider          String  @db.VarChar(50)
+  providerAccountId String  @db.VarChar(191)
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String? @db.VarChar(50)
+  scope             String? @db.VarChar(255)
+  id_token          String? @db.Text
+  session_state     String? @db.VarChar(255)
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @db.VarChar(191)
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String   @db.VarChar(191)
+  token      String   @unique @db.VarChar(191)
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  email     String    @db.VarChar(191)
+  token     String    @unique @db.VarChar(191)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+  @@map("password_reset_tokens")
+}
+
+model UserPreference {
+  id                      String    @id @default(cuid())
+  userId                  String    @unique
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultDownPaymentRatio Float     @default(0.2)
+  defaultTermMonths       Int       @default(48)
+  preferredFuel           FuelType?
+  preferredVehicleType    VehicleType?
+  theme                   String    @default("light") @db.VarChar(20)
+
+  @@map("user_preferences")
+}
+
+// ----------------------------------------------------
+// 2. Cars Hierarchy
+// ----------------------------------------------------
+
+model CarBrand {
+  id         String    @id @default(cuid())
+  nameKo     String    @unique @db.VarChar(100)
+  nameEn     String    @unique @db.VarChar(100)
+  slug       String    @unique @db.VarChar(100)
+  logoUrl    String?   @db.VarChar(500)
+  country    Country   @default(KOREA)
+  orderIndex Int       @default(0)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  models     CarModel[]
+  usedCars   UsedCarListing[]
+
+  @@map("car_brands")
+}
+
+model CarModel {
+  id             String          @id @default(cuid())
+  brandId        String
+  brand          CarBrand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  nameKo         String          @db.VarChar(100)
+  nameEn         String          @db.VarChar(100)
+  slug           String          @unique @db.VarChar(100)
+  vehicleType    VehicleType     @default(SEDAN)
+  isDiscontinued Boolean         @default(false)
+  releaseYear    Int
+  imageUrl       String?         @db.VarChar(500)
+  minPrice       Int             @default(0)
+  maxPrice       Int             @default(0)
+  viewCount      Int             @default(0)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  generations    CarGeneration[]
+  usedCars       UsedCarListing[]
+  images         CarImage[]
+  priceSnapshots UsedCarPriceSnapshot[]
+  marketStats    UsedCarMarketStat[]
+
+  @@index([brandId])
+  @@index([vehicleType])
+  @@index([minPrice, maxPrice])
+  @@map("car_models")
+}
+
+model CarGeneration {
+  id          String         @id @default(cuid())
+  modelId     String
+  model       CarModel       @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  nameKo      String         @db.VarChar(100)
+  codeName    String?        @db.VarChar(50)
+  startYear   Int
+  endYear     Int?
+  isCurrent   Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  modelYears  CarModelYear[]
+  marketStats UsedCarMarketStat[]
+
+  @@index([modelId])
+  @@map("car_generations")
+}
+
+model CarModelYear {
+  id               String        @id @default(cuid())
+  generationId     String
+  generation       CarGeneration @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  year             Int
+  basePrice        Int           @default(0)
+  priceUpdatedDate DateTime?
+  catalogUrl       String?       @db.VarChar(500)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  trims            CarTrim[]
+  options          CarOption[]
+
+  @@index([generationId])
+  @@index([year])
+  @@map("car_model_years")
+}
+
+model CarTrim {
+  id                        String         @id @default(cuid())
+  modelYearId               String
+  modelYear                 CarModelYear   @relation(fields: [modelYearId], references: [id], onDelete: Cascade)
+  nameKo                    String         @db.VarChar(150)
+  price                     Int
+  fuelType                  FuelType       @default(GASOLINE)
+  engineDisplacement        Int?
+  transmission              String?        @db.VarChar(50)
+  drivetrain                String?        @db.VarChar(50)
+  fuelEfficiencyCombined    Float?
+  electricEfficiencyCombined Float?
+  motorPower                Int?
+  maxPower                  Int?
+  maxTorque                 Float?
+  seatingCapacity           Int            @default(5)
+  standardFeaturesJson      Json?
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+
+  trimOptions               CarTrimOption[]
+  specs                     CarSpec?
+  newCarPrices              NewCarPrice[]
+  images                    CarImage[]
+  usedCars                  UsedCarListing[]
+  favorites                 FavoriteCar[]
+
+  @@index([modelYearId])
+  @@index([price])
+  @@index([fuelType])
+  @@map("car_trims")
+}
+
+model CarOption {
+  id          String          @id @default(cuid())
+  modelYearId String
+  modelYear   CarModelYear    @relation(fields: [modelYearId], references: [id], onDelete: Cascade)
+  nameKo      String          @db.VarChar(150)
+  category    String          @default("기본") @db.VarChar(50)
+  price       Int             @default(0)
+  description String?         @db.VarChar(500)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  trimOptions CarTrimOption[]
+
+  @@index([modelYearId])
+  @@map("car_options")
+}
+
+model CarTrimOption {
+  id        String    @id @default(cuid())
+  trimId    String
+  trim      CarTrim   @relation(fields: [trimId], references: [id], onDelete: Cascade)
+  optionId  String
+  option    CarOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  isDefault Boolean   @default(false)
+
+  @@unique([trimId, optionId])
+  @@index([trimId])
+  @@index([optionId])
+  @@map("car_trim_options")
+}
+
+model CarSpec {
+  id                 String   @id @default(cuid())
+  trimId             String   @unique
+  trim               CarTrim  @relation(fields: [trimId], references: [id], onDelete: Cascade)
+  lengthMm           Int?
+  widthMm            Int?
+  heightMm           Int?
+  wheelbaseMm        Int?
+  curbWeightKg       Int?
+  fuelTankCapacityL  Int?
+  trunkCapacityL     Int?
+  tireFront          String?  @db.VarChar(50)
+  tireRear           String?  @db.VarChar(50)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("car_specs")
+}
+
+model CarImage {
+  id         String    @id @default(cuid())
+  modelId    String?
+  model      CarModel? @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  trimId     String?
+  trim       CarTrim?  @relation(fields: [trimId], references: [id], onDelete: SetNull)
+  imageUrl   String    @db.VarChar(500)
+  caption    String?   @db.VarChar(200)
+  isMain     Boolean   @default(false)
+  orderIndex Int       @default(0)
+
+  @@index([modelId])
+  @@index([trimId])
+  @@map("car_images")
+}
+
+model NewCarPrice {
+  id                 String    @id @default(cuid())
+  trimId             String
+  trim               CarTrim   @relation(fields: [trimId], references: [id], onDelete: Cascade)
+  basePrice          Int
+  deliveryFeeDefault Int       @default(300000)
+  acquisitionTaxRate Float     @default(0.07)
+  subsidyRegion      String?   @db.VarChar(50)
+  subsidyAmount      Int       @default(0)
+  validFrom          DateTime  @default(now())
+  validTo            DateTime?
+  sourceReference    String?   @db.VarChar(255)
+
+  @@index([trimId])
+  @@map("new_car_prices")
+}
+
+// ----------------------------------------------------
+// 3. Used Cars
+// ----------------------------------------------------
+
+model UsedCarListing {
+  id                    String          @id @default(cuid())
+  trimId                String?
+  trim                  CarTrim?        @relation(fields: [trimId], references: [id], onDelete: SetNull)
+  modelId               String
+  model                 CarModel        @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  brandId               String
+  brand                 CarBrand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  title                 String          @db.VarChar(255)
+  year                  Int
+  mileageKm             Int
+  price                 Int
+  fuelType              FuelType        @default(GASOLINE)
+  transmission          String?         @db.VarChar(50)
+  color                 String?         @db.VarChar(50)
+  region                String          @db.VarChar(100)
+  accidentHistory       AccidentHistory @default(NONE)
+  isCertified           Boolean         @default(false)
+  sourceProvider        String          @default("encar") @db.VarChar(50)
+  sourceUrl             String?         @db.VarChar(500)
+  externalId            String?         @db.VarChar(100)
+  imageUrl              String?         @db.VarChar(500)
+  listingStatus         ListingStatus   @default(ACTIVE)
+  inspectionDetailsJson Json?
+  listedAt              DateTime        @default(now())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  favorites             FavoriteCar[]
+
+  @@index([modelId, year, mileageKm])
+  @@index([brandId])
+  @@index([price])
+  @@index([fuelType])
+  @@index([listingStatus, listedAt])
+  @@unique([sourceProvider, externalId])
+  @@map("used_car_listings")
+}
+
+model UsedCarPriceSnapshot {
+  id            String   @id @default(cuid())
+  modelId       String
+  model         CarModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  year          Int
+  mileageBucket String   @db.VarChar(50)
+  medianPrice   Int
+  avgPrice      Int
+  sampleCount   Int
+  snapshotDate  DateTime @default(now())
+
+  @@index([modelId, year])
+  @@map("used_car_price_snapshots")
+}
+
+model UsedCarMarketStat {
+  id               String          @id @default(cuid())
+  modelId          String
+  model            CarModel        @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  generationId     String?
+  generation       CarGeneration?  @relation(fields: [generationId], references: [id], onDelete: SetNull)
+  year             Int
+  avgPrice         Int
+  minPrice         Int
+  maxPrice         Int
+  depreciationRate Float           @default(0.0)
+  sampleCount      Int             @default(0)
+  priceTrendJson   Json?
+  asOfDate         DateTime        @default(now())
+  confidenceLevel  ConfidenceLevel @default(HIGH)
+  createdAt        DateTime        @default(now())
+
+  @@index([modelId, year])
+  @@map("used_car_market_stats")
+}
+
+model DataSource {
+  id           String        @id @default(cuid())
+  name         String        @db.VarChar(100)
+  providerCode String        @unique @db.VarChar(50)
+  status       String        @default("ACTIVE") @db.VarChar(20)
+  lastSyncedAt DateTime?
+  requestCount Int           @default(0)
+  errorCount   Int           @default(0)
+  licenseInfo  String?       @db.VarChar(255)
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  syncLogs     DataSyncLog[]
+
+  @@map("data_sources")
+}
+
+model DataSyncLog {
+  id           String      @id @default(cuid())
+  sourceId     String
+  source       DataSource  @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  provider     String      @db.VarChar(50)
+  status       String      @db.VarChar(20)
+  recordsCount Int         @default(0)
+  message      String?     @db.VarChar(1000)
+  startedAt    DateTime    @default(now())
+  finishedAt   DateTime?
+
+  @@index([sourceId])
+  @@index([startedAt])
+  @@map("data_sync_logs")
+}
+
+// ----------------------------------------------------
+// 4. Calculations & Recommendations
+// ----------------------------------------------------
+
+model FinancingScenario {
+  id               String               @id @default(cuid())
+  userId           String?
+  user             User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String               @db.VarChar(150)
+  vehiclePrice     Int
+  downPayment      Int
+  downPaymentType  String               @default("AMOUNT") @db.VarChar(20)
+  termMonths       Int                  @default(48)
+  annualRatePct    Float                @default(5.5)
+  productType      FinancingProductType @default(STANDARD)
+  balloonAmount    Int                  @default(0)
+  includeTaxInLoan Boolean              @default(false)
+  createdAt        DateTime             @default(now())
+
+  results          FinancingResult?
+
+  @@index([userId])
+  @@map("financing_scenarios")
+}
+
+model FinancingResult {
+  id                  String            @id @default(cuid())
+  scenarioId          String            @unique
+  scenario            FinancingScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  monthlyPayment      Int
+  totalPrincipal      Int
+  totalInterest       Int
+  totalPayment        Int
+  totalAcquisitionCost Int
+  scheduleJson        Json?
+  createdAt           DateTime          @default(now())
+
+  @@map("financing_results")
+}
+
+model BudgetSearch {
+  id                 String   @id @default(cuid())
+  userId             String?
+  user               User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cashAvailable      Int
+  reserveCash        Int      @default(0)
+  usableCash         Int
+  monthlyBudget      Int
+  maxInterestRate    Float    @default(5.5)
+  maxTermMonths      Int      @default(48)
+  preferredBrandsJson Json?
+  preferredTypesJson  Json?
+  preferredFuelsJson  Json?
+  includeNew         Boolean  @default(true)
+  includeUsed        Boolean  @default(true)
+  createdAt          DateTime @default(now())
+
+  recommendations    SavedRecommendation[]
+
+  @@index([userId])
+  @@map("budget_searches")
+}
+
+model SavedRecommendation {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  searchId     String?
+  search       BudgetSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
+  title        String        @db.VarChar(150)
+  snapshotJson Json
+  createdAt    DateTime      @default(now())
+
+  @@index([userId])
+  @@map("saved_recommendations")
+}
+
+model FavoriteCar {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  carType       String          @db.VarChar(20)
+  newTrimId     String?
+  newTrim       CarTrim?        @relation(fields: [newTrimId], references: [id], onDelete: Cascade)
+  usedListingId String?
+  usedListing   UsedCarListing? @relation(fields: [usedListingId], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now())
+
+  @@unique([userId, carType, newTrimId, usedListingId])
+  @@index([userId])
+  @@map("favorite_cars")
+}
+
+model CarComparison {
+  id          String   @id @default(cuid())
+  userId      String?
+  carIdsJson  Json
+  createdAt   DateTime @default(now())
+
+  @@map("car_comparisons")
+}
+
+// ----------------------------------------------------
+// 5. Community
+// ----------------------------------------------------
+
+model Board {
+  id          String   @id @default(cuid())
+  slug        String   @unique @db.VarChar(50)
+  name        String   @db.VarChar(100)
+  description String?  @db.VarChar(255)
+  orderIndex  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  posts       Post[]
+
+  @@map("boards")
+}
+
+model Post {
+  id           String       @id @default(cuid())
+  boardId      String
+  board        Board        @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title        String       @db.VarChar(255)
+  content      String       @db.LongText
+  viewCount    Int          @default(0)
+  likeCount    Int          @default(0)
+  commentCount Int          @default(0)
+  isNotice     Boolean      @default(false)
+  isPinned     Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  images       PostImage[]
+  comments     Comment[]
+  likes        PostLike[]
+  reports      PostReport[]
+
+  @@index([boardId, createdAt])
+  @@index([authorId])
+  @@map("posts")
+}
+
+model PostImage {
+  id         String   @id @default(cuid())
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  imageUrl   String   @db.VarChar(500)
+  orderIndex Int      @default(0)
+
+  @@index([postId])
+  @@map("post_images")
+}
+
+model Comment {
+  id        String       @id @default(cuid())
+  postId    String
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]    @relation("CommentReplies")
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String       @db.VarChar(2000)
+  likeCount Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  reports   PostReport[]
+
+  @@index([postId])
+  @@index([parentId])
+  @@index([authorId])
+  @@map("comments")
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("post_likes")
+}
+
+model PostReport {
+  id          String       @id @default(cuid())
+  postId      String?
+  post        Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  comment     Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reporterId  String
+  reporter    User         @relation("UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  reason      String       @db.VarChar(500)
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  @@index([reporterId])
+  @@index([status])
+  @@map("post_reports")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @db.VarChar(50)
+  title     String   @db.VarChar(150)
+  message   String   @db.VarChar(500)
+  linkUrl   String?  @db.VarChar(500)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ----------------------------------------------------
+// 6. Admin & Operations
+// ----------------------------------------------------
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  adminId    String
+  admin      User     @relation("AdminAudits", fields: [adminId], references: [id], onDelete: Cascade)
+  action     String   @db.VarChar(100)
+  targetType String   @db.VarChar(50)
+  targetId   String?  @db.VarChar(100)
+  ipAddress  String?  @db.VarChar(45)
+  detailsJson Json?
+  createdAt  DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@map("admin_audit_logs")
+}
+
+model SiteSetting {
+  id           String   @id @default(cuid())
+  settingKey   String   @unique @db.VarChar(100)
+  settingValue String   @db.Text
+  description  String?  @db.VarChar(255)
+  updatedAt    DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model SeoMetadata {
+  id              String   @id @default(cuid())
+  path            String   @unique @db.VarChar(255)
+  title           String   @db.VarChar(200)
+  metaDescription String   @db.VarChar(500)
+  canonicalUrl    String?  @db.VarChar(500)
+  ogImage         String?  @db.VarChar(500)
+  keywords        String?  @db.VarChar(500)
+  updatedAt       DateTime @updatedAt
+
+  @@map("seo_metadata")
+}
