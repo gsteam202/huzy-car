@@ -5,6 +5,7 @@ import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import AdsenseScript from "@/components/ads/adsense-script";
+import { AdBlockDetector } from "@/components/ads/adblock-detector";
 
 export const metadata: Metadata = {
   title: "CAR HUZY - 대한민국 신차·중고차 가격 비교 및 예산 맞춤 추천",
@@ -63,6 +64,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <AdBlockDetector />
         </Providers>
       </body>
     </html>

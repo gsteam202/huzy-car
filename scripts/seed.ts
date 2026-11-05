@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { prisma } from "../src/lib/db";
 import { hash } from "@node-rs/argon2";
+import { OFFICIAL_BRAND_LOGOS, OFFICIAL_CAR_ASSETS } from "../src/lib/official-car-images";
 
 async function main() {
   console.log("Starting CAR HUZY database seed...");
@@ -63,7 +64,7 @@ async function main() {
       slug: "hyundai",
       country: "KOREA" as const,
       orderIndex: 1,
-      logoUrl: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.hyundai,
     },
     {
       nameKo: "기아",
@@ -71,7 +72,7 @@ async function main() {
       slug: "kia",
       country: "KOREA" as const,
       orderIndex: 2,
-      logoUrl: "https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.kia,
     },
     {
       nameKo: "제네시스",
@@ -79,7 +80,7 @@ async function main() {
       slug: "genesis",
       country: "KOREA" as const,
       orderIndex: 3,
-      logoUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.genesis,
     },
     {
       nameKo: "KG모빌리티",
@@ -87,7 +88,7 @@ async function main() {
       slug: "kgm",
       country: "KOREA" as const,
       orderIndex: 4,
-      logoUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.kgm,
     },
     {
       nameKo: "BMW",
@@ -95,7 +96,7 @@ async function main() {
       slug: "bmw",
       country: "IMPORTED" as const,
       orderIndex: 5,
-      logoUrl: "https://images.unsplash.com/photo-1555353540-64580b51c258?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.bmw,
     },
     {
       nameKo: "메르세데스-벤츠",
@@ -103,7 +104,7 @@ async function main() {
       slug: "mercedes-benz",
       country: "IMPORTED" as const,
       orderIndex: 6,
-      logoUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS["mercedes-benz"],
     },
     {
       nameKo: "테슬라",
@@ -111,7 +112,7 @@ async function main() {
       slug: "tesla",
       country: "IMPORTED" as const,
       orderIndex: 7,
-      logoUrl: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=128&q=80",
+      logoUrl: OFFICIAL_BRAND_LOGOS.tesla,
     },
   ];
 
@@ -138,7 +139,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 19940000,
       maxPrice: 32140000,
-      imageUrl: "/images/cars/avante.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["avante"].officialImageUrl,
       generation: {
         nameKo: "7세대 페이스리프트 (CN7)",
         codeName: "CN7 PE",
@@ -201,7 +202,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 28080000,
       maxPrice: 39500000,
-      imageUrl: "/images/cars/sonata-the-edge.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["sonata-the-edge"].officialImageUrl,
       generation: {
         nameKo: "8세대 페이스리프트 (DN8)",
         codeName: "DN8 PE",
@@ -253,7 +254,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 35460000,
       maxPrice: 50800000,
-      imageUrl: "/images/cars/santafe.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["santafe"].officialImageUrl,
       generation: {
         nameKo: "5세대 (MX5)",
         codeName: "MX5",
@@ -305,7 +306,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 13850000,
       maxPrice: 19600000,
-      imageUrl: "/images/cars/casper.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["casper"].officialImageUrl,
       generation: {
         nameKo: "1세대 (AX1)",
         codeName: "AX1",
@@ -357,7 +358,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 35060000,
       maxPrice: 48320000,
-      imageUrl: "/images/cars/sorento.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["sorento"].officialImageUrl,
       generation: {
         nameKo: "4세대 페이스리프트 (MQ4)",
         codeName: "MQ4 PE",
@@ -409,7 +410,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 34700000,
       maxPrice: 52000000,
-      imageUrl: "/images/cars/carnival.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["carnival"].officialImageUrl,
       generation: {
         nameKo: "4세대 페이스리프트 (KA4)",
         codeName: "KA4 PE",
@@ -461,7 +462,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 13900000,
       maxPrice: 29550000,
-      imageUrl: "/images/cars/ray.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["ray"].officialImageUrl,
       generation: {
         nameKo: "1세대 2차 페이스리프트",
         codeName: "TAM PE2",
@@ -513,7 +514,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 58900000,
       maxPrice: 88500000,
-      imageUrl: "/images/cars/genesis-g80.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["genesis-g80"].officialImageUrl,
       generation: {
         nameKo: "3세대 페이스리프트 (RG3)",
         codeName: "RG3 PE",
@@ -554,7 +555,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 52990000,
       maxPrice: 72990000,
-      imageUrl: "/images/cars/model-y.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["model-y"].officialImageUrl,
       generation: {
         nameKo: "1세대",
         codeName: "Model Y",
@@ -593,7 +594,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 68800000,
       maxPrice: 88700000,
-      imageUrl: "/images/cars/bmw-5-series.jpg",
+      imageUrl: OFFICIAL_CAR_ASSETS["bmw-5-series"].officialImageUrl,
       generation: {
         nameKo: "8세대 (G60)",
         codeName: "G60",
@@ -654,6 +655,20 @@ async function main() {
         imageUrl: m.imageUrl,
       },
     });
+
+    // Ensure CarImage is populated with official manufacturer image
+    if (m.imageUrl) {
+      await prisma.carImage.deleteMany({ where: { modelId: model.id } });
+      await prisma.carImage.create({
+        data: {
+          modelId: model.id,
+          imageUrl: m.imageUrl,
+          caption: `${m.nameKo} - ${OFFICIAL_CAR_ASSETS[m.slug]?.sourceAttribution || "제조사 공식 홈페이지"}`,
+          isMain: true,
+          orderIndex: 0,
+        },
+      });
+    }
 
     // Generation
     let gen = await prisma.carGeneration.findFirst({

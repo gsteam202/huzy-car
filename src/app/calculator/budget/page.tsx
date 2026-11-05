@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatKoreanMoney } from "@/lib/finance";
 import { BudgetRecommendationItem } from "@/lib/finance";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 import {
   Calculator,
   Filter,
@@ -416,20 +417,14 @@ function BudgetCalculatorContent() {
                     <div>
                       {/* Top Image & Badges */}
                       <div className="relative h-44 bg-slate-100 overflow-hidden">
-                        {car.imageUrl ? (
-                          <img
-                            src={car.imageUrl}
-                            alt={car.modelNameKo}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <Car className="w-16 h-16" />
-                          </div>
-                        )}
+                        <CarImage
+                          src={car.imageUrl}
+                          alt={car.modelNameKo}
+                          modelSlug={car.modelSlug}
+                          showOfficialBadge={car.type === "NEW"}
+                        />
                         <span
-                          className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-extrabold rounded-lg shadow-sm ${
+                          className={`absolute top-3 left-3 px-2.5 py-1 text-xs font-extrabold rounded-lg shadow-sm z-10 ${
                             car.type === "NEW" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
                           }`}
                         >

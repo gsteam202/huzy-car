@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney, calculateAcquisitionTax, calculateInstallment } from "@/lib/finance";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
+import { getOfficialAttribution } from "@/lib/official-car-images";
 import {
   Car,
   Fuel,
@@ -100,22 +102,21 @@ export default async function CarDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white p-6 sm:p-10 rounded-3xl border border-slate-200 shadow-sm">
         {/* Left Image (7 cols) */}
         <div className="lg:col-span-7 relative h-72 sm:h-96 bg-slate-100 rounded-2xl overflow-hidden">
-          {model.imageUrl ? (
-            <img
-              src={model.imageUrl}
-              alt={model.nameKo}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-300">
-              <Car className="w-24 h-24" />
-            </div>
-          )}
-          <span className="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm">
+          <CarImage
+            src={model.imageUrl}
+            alt={model.nameKo}
+            modelSlug={model.slug}
+            showOfficialBadge
+            priority
+          />
+          <span className="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-sm z-10">
             {model.brand.nameKo}
           </span>
-          <span className="absolute top-4 right-4 px-3 py-1 bg-slate-900/80 text-white text-xs font-semibold rounded-lg backdrop-blur-sm">
+          <span className="absolute top-4 right-4 px-3 py-1 bg-slate-900/80 text-white text-xs font-semibold rounded-lg backdrop-blur-sm z-10">
             {currentYear?.year}년형
+          </span>
+          <span className="absolute bottom-3 right-3 text-[11px] text-slate-500 bg-white/80 px-2 py-0.5 rounded backdrop-blur-xs z-10">
+            출처: {getOfficialAttribution(model.slug)}
           </span>
         </div>
 

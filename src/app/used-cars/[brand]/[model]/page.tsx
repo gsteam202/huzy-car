@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { PriceTrendChart } from "@/components/used-cars/price-trend-chart";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 import {
   Car,
   ChevronRight,
@@ -84,11 +85,7 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
           <div className="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden shrink-0">
-            {model.imageUrl ? (
-              <img src={model.imageUrl} alt={model.nameKo} className="w-full h-full object-cover" />
-            ) : (
-              <Car className="w-10 h-10 text-slate-300 m-auto mt-5" />
-            )}
+            <CarImage src={model.imageUrl} alt={model.nameKo} modelSlug={model.slug} />
           </div>
           <div>
             <div className="text-xs font-bold text-amber-600">{model.brand.nameKo}</div>

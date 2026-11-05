@@ -1,10 +1,13 @@
-import { describe, it } from "node:test";
+import { describe, it, after } from "node:test";
 import assert from "node:assert/strict";
 import "dotenv/config";
 import { getBudgetRecommendations } from "../src/lib/recommendation";
 import { prisma } from "../src/lib/db";
 
 describe("Recommendation Engine Integration Tests", () => {
+  after(async () => {
+    await prisma.$disconnect();
+  });
   it("recommends cars strictly within budget bounds", async () => {
     // 1500만원 가용현금, 월 60만원 한도, 48개월, 연 5.5%
     const res = await getBudgetRecommendations({

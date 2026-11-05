@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { Car, Fuel, Zap, Leaf, Filter, ChevronRight } from "lucide-react";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 
 export const revalidate = 60;
 
@@ -136,22 +137,16 @@ export default async function NewCarsPage({ searchParams }: Props) {
             >
               <div>
                 <div className="relative h-48 bg-slate-100 overflow-hidden">
-                  {m.imageUrl ? (
-                    <img
-                      src={m.imageUrl}
-                      alt={m.nameKo}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                      <Car className="w-16 h-16" />
-                    </div>
-                  )}
-                  <span className="absolute top-3 left-3 px-2 py-0.5 text-xs font-bold rounded-md bg-blue-600 text-white">
+                  <CarImage
+                    src={m.imageUrl}
+                    alt={m.nameKo}
+                    modelSlug={m.slug}
+                    showOfficialBadge
+                  />
+                  <span className="absolute top-3 left-3 px-2 py-0.5 text-xs font-bold rounded-md bg-blue-600 text-white z-10">
                     {m.brand.nameKo}
                   </span>
-                  <span className="absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-900/80 text-white">
+                  <span className="absolute top-3 right-3 px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-900/80 text-white z-10">
                     {m.vehicleType}
                   </span>
                 </div>

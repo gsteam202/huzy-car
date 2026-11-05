@@ -3,6 +3,7 @@ import { formatKoreanMoney, calculateInstallment, estimateMonthlyMaintenance } f
 import Link from "next/link";
 import { Layers, Plus, Check, Car, X, ArrowRight } from "lucide-react";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 
 export const revalidate = 60;
 
@@ -106,17 +107,14 @@ export default async function CarComparePage({ searchParams }: Props) {
                   return (
                     <th key={car.id} className="py-6 px-6 w-1/4 align-top">
                       <div className="space-y-3">
-                        <div className="h-32 bg-slate-200 rounded-xl overflow-hidden relative">
-                          {car.imageUrl ? (
-                            <img
-                              src={car.imageUrl}
-                              alt={car.nameKo}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Car className="w-12 h-12 text-slate-400 m-auto mt-10" />
-                          )}
-                          <span className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-bold bg-blue-600 text-white rounded">
+                        <div className="h-32 bg-slate-100 rounded-xl overflow-hidden relative">
+                          <CarImage
+                            src={car.imageUrl}
+                            alt={car.nameKo}
+                            modelSlug={car.slug}
+                            showOfficialBadge
+                          />
+                          <span className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-bold bg-blue-600 text-white rounded z-10">
                             {car.brand.nameKo}
                           </span>
                         </div>

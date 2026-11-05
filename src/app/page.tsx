@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { HeroBudgetFinder } from "@/components/home/hero-budget-finder";
 import { formatKoreanMoney } from "@/lib/finance";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 import {
   Car,
   ChevronRight,
@@ -123,22 +124,16 @@ export default async function HomePage() {
                   className="group bg-white rounded-2xl overflow-hidden border border-slate-200/80 hover:border-blue-400 hover:shadow-xl transition-all duration-200 flex flex-col"
                 >
                   <div className="relative h-48 bg-slate-100 overflow-hidden">
-                    {m.imageUrl ? (
-                      <img
-                        src={m.imageUrl}
-                        alt={m.nameKo}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-300">
-                        <Car className="w-16 h-16" />
-                      </div>
-                    )}
-                    <span className="absolute top-3 left-3 px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm">
+                    <CarImage
+                      src={m.imageUrl}
+                      alt={m.nameKo}
+                      modelSlug={m.slug}
+                      showOfficialBadge
+                    />
+                    <span className="absolute top-3 left-3 px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-sm z-10">
                       신차
                     </span>
-                    <span className="absolute top-3 right-3 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-900/80 text-white backdrop-blur-sm">
+                    <span className="absolute top-3 right-3 px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-900/80 text-white backdrop-blur-sm z-10">
                       {m.brand.nameKo}
                     </span>
                   </div>
@@ -203,22 +198,15 @@ export default async function HomePage() {
                 className="group bg-white rounded-2xl overflow-hidden border border-slate-200/80 hover:border-amber-400 hover:shadow-xl transition-all duration-200 flex flex-col"
               >
                 <div className="relative h-40 bg-slate-100 overflow-hidden">
-                  {u.imageUrl ? (
-                    <img
-                      src={u.imageUrl}
-                      alt={u.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                      <Car className="w-12 h-12" />
-                    </div>
-                  )}
-                  <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500 text-white shadow-sm">
+                  <CarImage
+                    src={u.imageUrl}
+                    alt={u.title}
+                    modelSlug={u.model.slug}
+                  />
+                  <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500 text-white shadow-sm z-10">
                     인증중고
                   </span>
-                  <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[11px] font-medium rounded bg-black/60 text-white">
+                  <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[11px] font-medium rounded bg-black/60 text-white z-10">
                     {u.region}
                   </span>
                 </div>

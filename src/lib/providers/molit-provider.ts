@@ -38,7 +38,7 @@ export class MolitDataProvider implements CarDataProvider {
         releaseYear: 2024,
         minPrice: 52400000,
         maxPrice: 62420000,
-        imageUrl: "/images/cars/santafe.jpg",
+        imageUrl: "https://www.hyundai.com/contents/repn-car/side-45/ioniq5-45side.png",
         trims: [
           {
             nameKo: "Long Range 2WD 익스클루시브",
@@ -71,7 +71,7 @@ export class MolitDataProvider implements CarDataProvider {
         releaseYear: 2024,
         minPrice: 52600000,
         maxPrice: 63150000,
-        imageUrl: "/images/cars/sorento.jpg",
+        imageUrl: "https://www.kia.com/content/dam/kwp/kr/ko/vehicles/represent/krcv324/ev6_s_swp.png",
         trims: [
           {
             nameKo: "Long Range 2WD 에어",

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { Compass, Car, ShieldCheck, ChevronRight, Filter } from "lucide-react";
 import AdBanner from "@/components/ads/ad-banner";
+import { CarImage } from "@/components/cars/car-image";
 
 export const revalidate = 60;
 
@@ -103,22 +104,15 @@ export default async function UsedCarsPage({ searchParams }: Props) {
           >
             <div>
               <div className="relative h-44 bg-slate-100 overflow-hidden">
-                {u.imageUrl ? (
-                  <img
-                    src={u.imageUrl}
-                    alt={u.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-300">
-                    <Car className="w-16 h-16" />
-                  </div>
-                )}
-                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500 text-white shadow-sm">
+                <CarImage
+                  src={u.imageUrl}
+                  alt={u.title}
+                  modelSlug={u.model.slug}
+                />
+                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-xs font-bold rounded-md bg-amber-500 text-white shadow-sm z-10">
                   {u.accidentHistory === "NONE" ? "무사고" : "단순수리"}
                 </span>
-                <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[11px] font-medium rounded bg-black/60 text-white">
+                <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 text-[11px] font-medium rounded bg-black/60 text-white z-10">
                   {u.region}
                 </span>
               </div>
