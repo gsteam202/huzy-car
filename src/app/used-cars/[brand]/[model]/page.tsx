@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { PriceTrendChart } from "@/components/used-cars/price-trend-chart";
+import AdBanner from "@/components/ads/ad-banner";
 import {
   Car,
   ChevronRight,
@@ -58,7 +59,10 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
   const latestStat = model.marketStats[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-slate-500">
         <Link href="/" className="hover:text-blue-600">
@@ -213,6 +217,9 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { calculateInstallment, formatKoreanMoney } from "@/lib/finance";
+import AdBanner from "@/components/ads/ad-banner";
 import {
   Calculator,
   Calendar,
@@ -56,7 +57,10 @@ export default function InstallmentCalculatorPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
@@ -423,6 +427,9 @@ export default function InstallmentCalculatorPage() {
           </div>
         </div>
       </div>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

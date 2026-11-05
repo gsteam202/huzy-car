@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { MessageSquare, Eye, ThumbsUp, MessageCircle, PenSquare } from "lucide-react";
+import AdBanner from "@/components/ads/ad-banner";
 
 export const revalidate = 30;
 
@@ -43,7 +44,10 @@ export default async function CommunityPage({ searchParams }: Props) {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
         <div>
@@ -149,6 +153,9 @@ export default async function CommunityPage({ searchParams }: Props) {
           ))
         )}
       </div>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

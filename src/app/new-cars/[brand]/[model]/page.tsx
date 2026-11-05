@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney, calculateAcquisitionTax, calculateInstallment } from "@/lib/finance";
+import AdBanner from "@/components/ads/ad-banner";
 import {
   Car,
   Fuel,
@@ -74,7 +75,10 @@ export default async function CarDetailPage({ params }: Props) {
   const baseTrim = trims[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-slate-500">
         <Link href="/" className="hover:text-blue-600">
@@ -293,6 +297,9 @@ export default async function CarDetailPage({ params }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

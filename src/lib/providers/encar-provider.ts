@@ -46,7 +46,7 @@ export class EncarDataProvider implements CarDataProvider {
         accidentHistory: "NONE",
         isCertified: true,
         sourceUrl: "https://car.huzy.net/used-cars",
-        imageUrl: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80",
+        imageUrl: "/images/cars/avante.jpg",
       },
       {
         externalId: "encar-sorento-2022-01",
@@ -61,7 +61,7 @@ export class EncarDataProvider implements CarDataProvider {
         accidentHistory: "NONE",
         isCertified: true,
         sourceUrl: "https://car.huzy.net/used-cars",
-        imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+        imageUrl: "/images/cars/sorento.jpg",
       },
       {
         externalId: "encar-casper-2023-01",
@@ -76,7 +76,7 @@ export class EncarDataProvider implements CarDataProvider {
         accidentHistory: "NONE",
         isCertified: true,
         sourceUrl: "https://car.huzy.net/used-cars",
-        imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
+        imageUrl: "/images/cars/casper.jpg",
       },
     ];
 

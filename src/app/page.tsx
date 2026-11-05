@@ -3,6 +3,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { HeroBudgetFinder } from "@/components/home/hero-budget-finder";
 import { formatKoreanMoney } from "@/lib/finance";
+import AdBanner from "@/components/ads/ad-banner";
 import {
   Car,
   ChevronRight,
@@ -78,7 +79,12 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="space-y-16 pb-16">
+    <div className="space-y-12 pb-16">
+      {/* 0. Top Ad Banner immediately below header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <AdBanner slot="page-top-slot" compact />
+      </div>
+
       {/* 1. Hero: 내 예산으로 어떤 차를 살 수 있을까? */}
       <HeroBudgetFinder />
 
@@ -165,6 +171,9 @@ export default async function HomePage() {
             })}
           </div>
         </section>
+
+        {/* Mid Ad Banner */}
+        <AdBanner slot="content-mid-slot" />
 
         {/* 3. Popular Used Cars (인기 중고차) */}
         <section className="space-y-6">
@@ -269,6 +278,9 @@ export default async function HomePage() {
             ))}
           </div>
         </section>
+
+        {/* Bottom Ad Banner */}
+        <AdBanner slot="content-bottom-slot" />
 
         {/* 5. New vs Used Comparative Buying Guide */}
         <section className="bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden">

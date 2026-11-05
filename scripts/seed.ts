@@ -138,7 +138,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 19940000,
       maxPrice: 32140000,
-      imageUrl: "https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80",
+      imageUrl: "/images/cars/avante.jpg",
       generation: {
         nameKo: "7세대 페이스리프트 (CN7)",
         codeName: "CN7 PE",
@@ -201,7 +201,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 28080000,
       maxPrice: 39500000,
-      imageUrl: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800&q=80",
+      imageUrl: "/images/cars/sonata-the-edge.jpg",
       generation: {
         nameKo: "8세대 페이스리프트 (DN8)",
         codeName: "DN8 PE",
@@ -253,7 +253,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 35460000,
       maxPrice: 50800000,
-      imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80",
+      imageUrl: "/images/cars/santafe.jpg",
       generation: {
         nameKo: "5세대 (MX5)",
         codeName: "MX5",
@@ -305,7 +305,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 13850000,
       maxPrice: 19600000,
-      imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
+      imageUrl: "/images/cars/casper.jpg",
       generation: {
         nameKo: "1세대 (AX1)",
         codeName: "AX1",
@@ -357,7 +357,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 35060000,
       maxPrice: 48320000,
-      imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+      imageUrl: "/images/cars/sorento.jpg",
       generation: {
         nameKo: "4세대 페이스리프트 (MQ4)",
         codeName: "MQ4 PE",
@@ -409,7 +409,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 34700000,
       maxPrice: 52000000,
-      imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
+      imageUrl: "/images/cars/carnival.jpg",
       generation: {
         nameKo: "4세대 페이스리프트 (KA4)",
         codeName: "KA4 PE",
@@ -461,7 +461,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 13900000,
       maxPrice: 29550000,
-      imageUrl: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800&q=80",
+      imageUrl: "/images/cars/ray.jpg",
       generation: {
         nameKo: "1세대 2차 페이스리프트",
         codeName: "TAM PE2",
@@ -513,7 +513,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 58900000,
       maxPrice: 88500000,
-      imageUrl: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&q=80",
+      imageUrl: "/images/cars/genesis-g80.jpg",
       generation: {
         nameKo: "3세대 페이스리프트 (RG3)",
         codeName: "RG3 PE",
@@ -554,7 +554,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 52990000,
       maxPrice: 72990000,
-      imageUrl: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&q=80",
+      imageUrl: "/images/cars/model-y.jpg",
       generation: {
         nameKo: "1세대",
         codeName: "Model Y",
@@ -593,7 +593,7 @@ async function main() {
       releaseYear: 2024,
       minPrice: 68800000,
       maxPrice: 88700000,
-      imageUrl: "https://images.unsplash.com/photo-1555353540-64580b51c258?w=800&q=80",
+      imageUrl: "/images/cars/bmw-5-series.jpg",
       generation: {
         nameKo: "8세대 (G60)",
         codeName: "G60",

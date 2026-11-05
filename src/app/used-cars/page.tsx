@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { Compass, Car, ShieldCheck, ChevronRight, Filter } from "lucide-react";
+import AdBanner from "@/components/ads/ad-banner";
 
 export const revalidate = 60;
 
@@ -47,7 +48,10 @@ export default async function UsedCarsPage({ searchParams }: Props) {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Header */}
       <div className="border-b border-slate-200 pb-6 space-y-2">
         <div className="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-wider">
@@ -148,6 +152,9 @@ export default async function UsedCarsPage({ searchParams }: Props) {
           </Link>
         ))}
       </div>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

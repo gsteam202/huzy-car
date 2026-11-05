@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import AdsenseScript from "@/components/ads/adsense-script";
 
 export const metadata: Metadata = {
   title: "CAR HUZY - 대한민국 신차·중고차 가격 비교 및 예산 맞춤 추천",
@@ -42,6 +43,7 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <meta name="naver-site-verification" content="356ee301e0e87d7b038ae3033a166e9a994dbd51" />
+        <AdsenseScript />
         {/* Google Tag Manager */}
         <Script
           async
