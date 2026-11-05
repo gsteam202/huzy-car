@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="carHuzyBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="carBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="carGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <filter id="carDropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Rounded Base Card -->
+  <rect width="64" height="64" rx="16" fill="url(#carHuzyBg)" filter="url(#carDropShadow)" />
+
+  <!-- Speed Arc Glow -->
+  <path d="M12 44C20 44 48 44 52 44" stroke="url(#carGlow)" stroke-width="2.5" stroke-linecap="round" opacity="0.6" />
+
+  <!-- Sleek Aerodynamic Car Silhouette -->
+  <!-- Roof and Windshield Line -->
+  <path d="M15 37L19 28C20.5 24.5 23.5 22 27.5 22H37C41 22 43.5 24.5 45.5 28L50 37H15Z" fill="#0f172a" opacity="0.35" />
+  
+  <!-- Car Main Outer Shell -->
+  <path d="M11 38C11 35.5 13 34 15.5 34H17L21 27.5C22.8 24.5 25.5 23 29 23H37C40.5 23 43 24.5 44.5 27.5L48.5 34H50C52.5 34 54.5 35.5 54.5 38C54.5 40 53 41.5 51 41.5H13C11.5 41.5 11 40 11 38Z" fill="url(#carBodyGrad)" />
+
+  <!-- Windshield and Windows -->
+  <path d="M22.5 32.5L25 28C26 26.5 27.5 25.5 29.5 25.5H35.5V32.5H22.5Z" fill="#1e293b" />
+  <path d="M37.5 25.5H38.5C40.5 25.5 42 26.5 43 28L45.5 32.5H37.5V25.5Z" fill="#1e293b" />
+
+  <!-- Headlight & Taillight Accents -->
+  <path d="M49 36.5H53.5C53.8 36.5 54 36.8 53.8 37.2L53 38.5H49V36.5Z" fill="#38bdf8" />
+  <path d="M12 37.5H15V39H12.5C12.2 39 12 38.8 12 38.5V37.5Z" fill="#ef4444" />
+
+  <!-- Front & Rear Wheels -->
+  <!-- Left Wheel -->
+  <circle cx="21" cy="41" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="1.5" />
+  <circle cx="21" cy="41" r="2" fill="#38bdf8" />
+
+  <!-- Right Wheel -->
+  <circle cx="44" cy="41" r="5" fill="#0f172a" stroke="#cbd5e1" stroke-width="1.5" />
+  <circle cx="44" cy="41" r="2" fill="#38bdf8" />
+
+  <!-- Top Sparkle / Accent -->
+  <path d="M48 13L49.2 16L52 17.2L49.2 18.4L48 21L46.8 18.4L44 17.2L46.8 16L48 13Z" fill="#fef08a" opacity="0.9" />
+</svg>

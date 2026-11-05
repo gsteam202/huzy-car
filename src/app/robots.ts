@@ -9,7 +9,13 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/admin/", "/mypage/"],
       },
       {
-        userAgent: ["Googlebot", "Yeti", "Mediapartners-Google", "AdsBot-Google"],
+        userAgent: [
+          "Googlebot",
+          "Yeti",
+          "Google-InspectionTool",
+          "Mediapartners-Google",
+          "AdsBot-Google",
+        ],
         allow: "/",
         disallow: ["/api/", "/admin/", "/mypage/"],
       },

@@ -7,6 +7,8 @@ declare global {
     adsbygoogle?: unknown[];
     __adsenseReady?: boolean;
     __adsenseFailed?: boolean;
+    __careAdsenseReady?: boolean;
+    __careAdsenseFailed?: boolean;
   }
 }
 
@@ -24,11 +26,16 @@ export default function AdsenseScript() {
       onReady={() => {
         window.__adsenseReady = true;
         window.__adsenseFailed = false;
+        window.__careAdsenseReady = true;
+        window.__careAdsenseFailed = false;
         window.dispatchEvent(new Event("adsense-ready"));
+        window.dispatchEvent(new Event("care-adsense-ready"));
       }}
       onError={() => {
         window.__adsenseFailed = true;
+        window.__careAdsenseFailed = true;
         window.dispatchEvent(new Event("adsense-error"));
+        window.dispatchEvent(new Event("care-adsense-error"));
       }}
     />
   );

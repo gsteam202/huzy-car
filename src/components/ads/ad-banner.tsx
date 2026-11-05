@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
-import { CareMobileAd, useMobileAdLayout } from "@/lib/adsense/care-mobile-ad";
+import { memo, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import {
   createAdMeasurement,
   observeAdSlot,
@@ -18,28 +18,42 @@ export const SLOTS: Record<string, string> = {
   "content-bottom-slot": process.env.NEXT_PUBLIC_ADSENSE_BOTTOM_SLOT || "4672697540",
 };
 
-export const GoogleAdUnit = memo(function GoogleAdUnit({
+export type AdFormat = "auto" | "horizontal" | "rectangle";
+
+const subscribeNoop = () => () => {};
+
+export type AdSlotProps = {
+  slot?: string;
+  placement?: string;
+  format?: AdFormat;
+  mobileFormat?: AdFormat;
+  mobileHeight?: number;
+  className?: string;
+  compact?: boolean;
+  priority?: boolean;
+  mobileOnly?: boolean;
+};
+
+type Configuration = {
+  format: AdFormat;
+  responsive: boolean;
+  width: number | string;
+  height?: number;
+};
+
+// Stable Google-owned unit: once pushed, the <ins> element is never unmounted or re-requested on resize.
+const GoogleUnit = memo(function GoogleUnit({
+  configuration,
   slot,
   placement,
-  client = ADSENSE_CLIENT_ID,
-  format = "auto",
-  responsive = true,
-  minWidth = 120,
-  style,
-  className = "",
   onStatus,
   onOptimizedEmpty,
 }: {
+  configuration: Configuration;
   slot: string;
   placement: string;
-  client?: string;
-  format?: string;
-  responsive?: boolean;
-  minWidth?: number;
-  style?: React.CSSProperties;
-  className?: string;
-  onStatus?: (value: string) => void;
-  onOptimizedEmpty?: (value: boolean) => void;
+  onStatus: (value: string) => void;
+  onOptimizedEmpty: (value: boolean) => void;
 }) {
   const ins = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
@@ -57,6 +71,7 @@ export const GoogleAdUnit = memo(function GoogleAdUnit({
     let attempts = 0;
     const maxAttempts = 15;
     let cancelled = false;
+    const minimum = typeof configuration.width === "number" ? configuration.width : 120;
 
     const push = () => {
       if (
@@ -67,26 +82,23 @@ export const GoogleAdUnit = memo(function GoogleAdUnit({
       ) {
         return;
       }
-
       const currentWidth = node.getBoundingClientRect().width;
-      if (currentWidth < minWidth) {
+      if (currentWidth < minimum) {
         if (++attempts < maxAttempts) {
           timer = setTimeout(push, 150);
         }
         return;
       }
-
       if (node.hasAttribute("data-adsbygoogle-status")) {
         pushed.current = true;
         return;
       }
-
       try {
         const ads = window as unknown as { adsbygoogle?: object[] };
         ads.adsbygoogle = ads.adsbygoogle || [];
         ads.adsbygoogle.push({});
         pushed.current = true;
-        reportAdRequest({ slot, placement, format }, measurement.current);
+        reportAdRequest({ slot, placement, format: configuration.format }, measurement.current);
       } catch (error) {
         if (
           /availableWidth\s*=\s*0|No slot size|All 'ins' elements in the DOM/i.test(
@@ -96,7 +108,7 @@ export const GoogleAdUnit = memo(function GoogleAdUnit({
         ) {
           timer = setTimeout(push, 200);
         } else {
-          statusCallback.current?.("failed");
+          statusCallback.current("failed");
         }
       }
     };
@@ -117,13 +129,12 @@ export const GoogleAdUnit = memo(function GoogleAdUnit({
 
     const stopStatus = observeAdSlot(
       node,
-      { slot, placement, format },
+      { slot, placement, format: configuration.format },
       measurement.current,
-      (val) => statusCallback.current?.(val)
+      (value) => statusCallback.current(value)
     );
-    const stopSpace = onOptimizedEmpty
-      ? observeOptimizedAdSpace(node, onOptimizedEmpty)
-      : () => {};
+
+    const stopSpace = observeOptimizedAdSpace(node, onOptimizedEmpty);
 
     return () => {
       cancelled = true;
@@ -133,62 +144,156 @@ export const GoogleAdUnit = memo(function GoogleAdUnit({
       stopStatus();
       stopSpace();
     };
-  }, [slot, placement, client, format, minWidth, onOptimizedEmpty]);
+  }, [configuration, slot, placement, onOptimizedEmpty]);
+
+  const isHorizontalBanner = configuration.format === "horizontal";
 
   return (
     <ins
       ref={ins}
-      className={`adsbygoogle ${className}`}
+      className={`adsbygoogle ${isHorizontalBanner ? "ad-banner-horizontal" : ""}`}
       style={{
         display: "block",
-        width: "100%",
+        width: configuration.width,
+        maxWidth: "100%",
+        height: typeof configuration.width === "number" ? configuration.height : undefined,
         margin: "0 auto",
-        ...style,
       }}
-      data-ad-client={client}
+      data-ad-client={ADSENSE_CLIENT_ID}
       data-ad-slot={slot}
-      data-ad-format={format}
-      data-full-width-responsive={responsive ? "true" : "false"}
+      data-ad-format={isHorizontalBanner ? undefined : configuration.format}
+      data-full-width-responsive={isHorizontalBanner ? "false" : configuration.responsive ? "true" : "false"}
     />
   );
 });
 
-export function DesktopAdSlot({
+function AdSlotContent({
   slot = "content-mid-slot",
-  format = "auto",
-  mobileOnly = false,
-  compact = false,
+  placement,
+  format = "horizontal",
+  mobileFormat = "horizontal",
+  mobileHeight = 60,
   className = "",
-}: {
-  slot?: string;
-  format?: string;
-  mobileOnly?: boolean;
-  compact?: boolean;
-  className?: string;
-}) {
-  const container = useRef<HTMLElement>(null);
-  const isTop = slot.endsWith("-top") || slot === "page-top-slot";
-  const [inView, setInView] = useState(() => isTop);
+  compact = false,
+  priority = false,
+  mobileOnly = false,
+}: AdSlotProps) {
+  const ref = useRef<HTMLElement>(null);
+  const slotId = SLOTS[slot] || (/^\d{10}$/.test(slot) ? slot : "1689592358");
+  const actualPlacement = placement || slot;
+
+  const [configuration, setConfiguration] = useState<Configuration | null>(null);
+  const isInitialInView = Boolean(
+    priority ||
+      actualPlacement.endsWith("-top") ||
+      actualPlacement === "page-top-slot" ||
+      compact
+  );
+
+  const [inView, setInView] = useState(isInitialInView);
   const [status, setStatus] = useState("pending");
   const [optimizedEmpty, setOptimizedEmpty] = useState(false);
+  const frozen = useRef(false);
 
-  const slotId = SLOTS[slot] || (/^\d{10}$/.test(slot) ? slot : "1689592358");
+  // Check if local dev environment
+  const local = useSyncExternalStore(
+    subscribeNoop,
+    () => {
+      if (typeof window === "undefined") return false;
+      return (
+        ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
+        process.env.NEXT_PUBLIC_ADSENSE_FORCE_LIVE !== "true"
+      );
+    },
+    () => false
+  );
 
   useEffect(() => {
-    const target = container.current;
-    if (!target || !slotId || inView) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "100px 0px" }
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [slotId, inView]);
+    const node = ref.current;
+    if (!node || local) return;
+
+    // Mobile slots initialize once at usable width, without waiting for scroll.
+    let near =
+      isInitialInView ||
+      window.matchMedia("(max-width:1024px)").matches ||
+      !("IntersectionObserver" in window);
+
+    const fallback = near ? setTimeout(() => setInView(true), 0) : undefined;
+    let stopped = false;
+
+    const prepare = () => {
+      if (stopped || frozen.current) return;
+      if (window.__careAdsenseFailed && !window.__careAdsenseReady) {
+        setStatus("failed");
+        return;
+      }
+      if (
+        !near ||
+        document.visibilityState !== "visible" ||
+        (!window.__careAdsenseReady &&
+          !window.__adsenseReady &&
+          !(typeof window !== "undefined" && window.adsbygoogle))
+      ) {
+        return;
+      }
+
+      const width = node.getBoundingClientRect().width;
+      if (width < 120) return;
+
+      frozen.current = true;
+      setStatus("pending");
+
+      const isMobile = window.matchMedia("(max-width:1024px)").matches;
+      const selectedFormat: AdFormat = isMobile ? mobileFormat : format;
+
+      setConfiguration({
+        format: selectedFormat,
+        responsive: isMobile || selectedFormat === "auto",
+        width: "100%",
+        height: compact ? 50 : undefined,
+      });
+    };
+
+    const resize = new ResizeObserver(prepare);
+    resize.observe(node);
+
+    const intersection =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries, observer) => {
+              if (entries.some((e) => e.isIntersecting)) {
+                near = true;
+                setInView(true);
+                observer.disconnect();
+                prepare();
+              }
+            },
+            { rootMargin: "300px 0px" }
+          )
+        : null;
+
+    intersection?.observe(node);
+
+    window.addEventListener("care-adsense-ready", prepare);
+    window.addEventListener("adsense-ready", prepare);
+    window.addEventListener("care-adsense-error", prepare);
+    window.addEventListener("adsense-error", prepare);
+    document.addEventListener("visibilitychange", prepare);
+
+    prepare();
+
+    return () => {
+      stopped = true;
+      clearTimeout(fallback);
+      resize.disconnect();
+      intersection?.disconnect();
+      window.removeEventListener("care-adsense-ready", prepare);
+      window.removeEventListener("adsense-ready", prepare);
+      window.removeEventListener("care-adsense-error", prepare);
+      window.removeEventListener("adsense-error", prepare);
+      document.removeEventListener("visibilitychange", prepare);
+    };
+  }, [isInitialInView, local, slotId, actualPlacement, format, mobileFormat, compact]);
 
   if (process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "false") return null;
 
@@ -198,56 +303,54 @@ export function DesktopAdSlot({
     status === "suppressed" ||
     (status === "unfill-optimized" && optimizedEmpty);
   const active = inView && !empty;
+  const isHorizontalBanner = configuration ? configuration.format === "horizontal" : format === "horizontal";
 
   return (
     <aside
-      ref={container}
-      aria-label="광고 영역"
-      data-ad-placement={slot}
+      ref={ref}
+      aria-label="광고"
+      data-ad-placement={actualPlacement}
       data-ad-status={status}
+      data-ad-active={active ? "true" : "false"}
+      data-ad-compact={compact ? "true" : "false"}
+      className={`ad-slot w-full max-w-7xl mx-auto ${compact ? "ad-slot-compact" : ""} ${
+        isHorizontalBanner ? "ad-slot-horizontal" : ""
+      } ${!active ? "ad-slot-collapsed" : ""} ${mobileOnly ? "md:hidden" : ""} ${className}`}
       style={{
-        minHeight: active ? (compact ? 90 : 120) : 0,
+        overflowAnchor: "none",
+        margin: active ? (compact ? "4px auto 8px" : "8px auto 14px") : "0 auto",
+        minHeight: active ? (compact ? 50 : isHorizontalBanner ? 60 : mobileHeight) : 0,
         height: active ? undefined : 0,
         opacity: active ? 1 : 0,
-        overflow: active ? "visible" : "hidden",
       }}
-      className={`my-6 w-full max-w-7xl mx-auto px-4 ${
-        mobileOnly ? "hidden" : ""
-      } ${className}`}
     >
-      {inView && (
-        <GoogleAdUnit
+      {local ? (
+        <div className="flex h-12 w-full items-center justify-center rounded-xl bg-slate-100 border border-dashed border-slate-300 text-xs text-slate-500">
+          광고 영역 ({actualPlacement})
+        </div>
+      ) : configuration ? (
+        <GoogleUnit
+          configuration={configuration}
           slot={slotId}
-          placement={slot}
-          format={format}
+          placement={actualPlacement}
           onStatus={setStatus}
           onOptimizedEmpty={setOptimizedEmpty}
         />
-      )}
+      ) : null}
     </aside>
   );
 }
 
-function MobileBanner(props: Parameters<typeof DesktopAdSlot>[0]) {
-  const slot =
-    SLOTS[props.slot || "content-mid-slot"] ||
-    (/^\d{10}$/.test(props.slot || "") ? props.slot! : "1689592358");
-  if (process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "false" || !slot) return null;
+export function AdSlot(props: AdSlotProps) {
+  const pathname = usePathname();
   return (
-    <CareMobileAd
-      client={ADSENSE_CLIENT_ID}
-      slot={slot}
-      placement={props.slot}
-      compact={props.compact}
-      className={[props.mobileOnly ? "md:hidden" : "", props.className]
-        .filter(Boolean)
-        .join(" ")}
+    <AdSlotContent
+      key={`${pathname}:${props.placement || props.slot}:${props.slot}`}
+      {...props}
     />
   );
 }
 
-export default function AdBanner(props: Parameters<typeof DesktopAdSlot>[0]) {
-  const mobile = useMobileAdLayout();
-  if (mobile === null) return null;
-  return mobile ? <MobileBanner {...props} /> : <DesktopAdSlot {...props} />;
+export default function AdBanner(props: AdSlotProps) {
+  return <AdSlot {...props} />;
 }

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
 import { PriceTrendChart } from "@/components/used-cars/price-trend-chart";
@@ -22,6 +23,40 @@ interface Props {
     brand: string;
     model: string;
   }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { brand: brandSlug, model: modelSlug } = await params;
+  const model = await prisma.carModel.findFirst({
+    where: { slug: modelSlug, brand: { slug: brandSlug } },
+    include: { brand: true },
+  });
+
+  if (!model) {
+    return { title: "중고차 시세 정보를 찾을 수 없습니다 | CAR HUZY" };
+  }
+
+  const title = `${model.brand.nameKo} ${model.nameKo} 중고차 실거래 시세·감가율 분석 | CAR HUZY`;
+  const description = `${model.brand.nameKo} ${model.nameKo} 연식별 중고차 실거래 시세 및 감가율 통계. 신차 대비 잔가율, 사고 유무별 시세표, 무사고 인증 매물 가격 비교.`;
+  const url = `https://car.huzy.net/used-cars/${brandSlug}/${modelSlug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      images: model.imageUrl ? [{ url: model.imageUrl, alt: `${model.brand.nameKo} ${model.nameKo}` }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: model.imageUrl ? [model.imageUrl] : [],
+    },
+  };
 }
 
 export default async function UsedCarModelTrendsPage({ params }: Props) {
@@ -59,8 +94,45 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
 
   const latestStat = model.marketStats[0];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "홈", item: "https://car.huzy.net" },
+          { "@type": "ListItem", position: 2, name: "중고차", item: "https://car.huzy.net/used-cars" },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: model.brand.nameKo,
+            item: `https://car.huzy.net/used-cars?brand=${model.brand.slug}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: `${model.nameKo} 시세`,
+            item: `https://car.huzy.net/used-cars/${model.brand.slug}/${model.slug}`,
+          },
+        ],
+      },
+      {
+        "@type": "Product",
+        name: `${model.brand.nameKo} ${model.nameKo} 중고차`,
+        image: model.imageUrl || undefined,
+        brand: { "@type": "Brand", name: model.brand.nameKo },
+        model: model.nameKo,
+        description: `${model.nameKo} 연식별 중고차 실거래 시세 및 감가율 통계`,
+      },
+    ],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Top Banner */}
       <AdBanner slot="page-top-slot" compact />
 

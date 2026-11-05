@@ -6,44 +6,60 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import AdsenseScript from "@/components/ads/adsense-script";
 import { AdBlockDetector } from "@/components/ads/adblock-detector";
+import { siteMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "CAR HUZY - 대한민국 신차·중고차 가격 비교 및 예산 맞춤 추천",
-  description:
-    "내 보유 현금과 월 납입금으로 살 수 있는 자동차를 즉시 계산하고 추천해 드립니다. 현대, 기아, 제네시스, 수입차 신차 가격표 및 감가율 분석 중고차 실거래 시세 비교.",
-  metadataBase: new URL("https://car.huzy.net"),
-  verification: {
-    other: {
-      "naver-site-verification": "356ee301e0e87d7b038ae3033a166e9a994dbd51",
-    },
-  },
-  openGraph: {
-    title: "CAR HUZY - 대한민국 자동차 가격 비교 & 구매 예산 추천",
-    description: "보유 자금과 월 한도액을 입력하면 구매 가능한 신차·중고차를 실시간으로 자동 추천해 드립니다.",
-    url: "https://car.huzy.net",
-    siteName: "CAR HUZY",
-    locale: "ko_KR",
-    type: "website",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
-};
+export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const jsonLdWebsite = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://car.huzy.net/#organization",
+        name: "CAR HUZY",
+        alternateName: ["카휴지", "Huzy Car"],
+        url: "https://car.huzy.net",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://car.huzy.net/icon-512.png",
+        },
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://car.huzy.net/#website",
+        url: "https://car.huzy.net",
+        name: "CAR HUZY",
+        description:
+          "내 보유 현금과 월 납입금으로 살 수 있는 자동차를 즉시 계산하고 추천해 드립니다.",
+        publisher: {
+          "@id": "https://car.huzy.net/#organization",
+        },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: "https://car.huzy.net/new-cars?q={search_term_string}",
+          },
+          "query-input": "required name=search_term_string",
+        },
+        inLanguage: "ko-KR",
+      },
+    ],
+  };
+
   return (
     <html lang="ko">
       <head>
         <meta name="naver-site-verification" content="356ee301e0e87d7b038ae3033a166e9a994dbd51" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
         <AdsenseScript />
         {/* Google Tag Manager */}
         <Script

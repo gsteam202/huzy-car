@@ -25,3 +25,60 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Care AdSense Mobile Baseline Styles */
+.ad-slot {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  transition: min-height 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+.ad-slot:not(.ad-slot-collapsed) {
+  overflow: visible;
+}
+
+.ad-slot.ad-slot-collapsed {
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-width: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+}
+
+.ad-slot .adsbygoogle {
+  display: block;
+  width: 100%;
+}
+
+.ad-slot .adsbygoogle.ad-banner-horizontal {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 500px) {
+  .ad-slot .adsbygoogle.ad-banner-horizontal {
+    height: 60px;
+  }
+}
+
+@media (min-width: 800px) {
+  .ad-slot .adsbygoogle.ad-banner-horizontal {
+    height: 90px;
+  }
+}
+
+.ad-slot-compact .adsbygoogle.ad-banner-horizontal {
+  height: 50px !important;
+}
+
