@@ -18,9 +18,10 @@ function createPrismaClient(): PrismaClient {
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
     database: url.pathname.slice(1),
-    connectionLimit: 10,
+    connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 5),
     connectTimeout: 5000,
-    socketTimeout: 15000,
+    idleTimeout: Number(process.env.DB_IDLE_TIMEOUT_SECONDS || 60),
+    minimumIdle: Number(process.env.DB_MINIMUM_IDLE || 0),
   });
 
   return new PrismaClient({
@@ -30,7 +31,5 @@ function createPrismaClient(): PrismaClient {
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+globalForPrisma.prisma = prisma;
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
