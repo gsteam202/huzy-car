@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { MessageSquare, Eye, ThumbsUp, MessageCircle, PenSquare } from "lucide-react";
@@ -106,12 +107,17 @@ export default async function CommunityPage({ searchParams }: Props) {
             아직 등록된 게시글이 없습니다. 첫 번째 글을 작성해보세요!
           </div>
         ) : (
-          posts.map((p) => (
-            <Link
-              key={p.id}
-              href={`/community/${p.id}`}
-              className="p-5 sm:p-6 block hover:bg-slate-50/80 transition-colors group"
-            >
+          posts.map((p, idx) => (
+            <Fragment key={p.id}>
+              {idx === 4 && posts.length >= 8 && (
+                <div className="p-4 bg-slate-50/70 border-b border-slate-100">
+                  <AdBanner slot="content-mid-slot" />
+                </div>
+              )}
+              <Link
+                href={`/community/${p.id}`}
+                className="p-5 sm:p-6 block hover:bg-slate-50/80 transition-colors group"
+              >
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 text-slate-700">
@@ -150,7 +156,8 @@ export default async function CommunityPage({ searchParams }: Props) {
                 </div>
               </div>
             </Link>
-          ))
+          </Fragment>
+        ))
         )}
       </div>
 

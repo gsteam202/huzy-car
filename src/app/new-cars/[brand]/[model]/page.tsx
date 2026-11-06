@@ -342,6 +342,9 @@ export default async function CarDetailPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Mid Content Ad Banner */}
+      <AdBanner slot="content-mid-slot" />
+
       {/* Used Car Market Comparison for this Model */}
       <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
         <div className="flex items-center justify-between">

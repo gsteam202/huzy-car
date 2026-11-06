@@ -241,6 +241,9 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Mid Content Ad Banner */}
+      <AdBanner slot="content-mid-slot" />
+
       {/* Active Listings for this model */}
       <div className="space-y-4">
         <h2 className="text-xl font-black text-slate-900 tracking-tight">

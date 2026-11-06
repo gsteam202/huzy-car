@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatKoreanMoney } from "@/lib/finance";
@@ -96,12 +97,17 @@ export default async function UsedCarsPage({ searchParams }: Props) {
 
       {/* Listings Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {listings.map((u) => (
-          <Link
-            key={u.id}
-            href={`/used-cars/${u.brand.slug}/${u.model.slug}`}
-            className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-amber-400 hover:shadow-xl transition-all duration-200 flex flex-col justify-between group"
-          >
+        {listings.map((u, idx) => (
+          <Fragment key={u.id}>
+            {idx === 5 && listings.length >= 8 && (
+              <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 py-2">
+                <AdBanner slot="content-mid-slot" />
+              </div>
+            )}
+            <Link
+              href={`/used-cars/${u.brand.slug}/${u.model.slug}`}
+              className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-amber-400 hover:shadow-xl transition-all duration-200 flex flex-col justify-between group"
+            >
             <div>
               <div className="relative h-44 bg-slate-100 overflow-hidden">
                 <CarImage
@@ -144,7 +150,8 @@ export default async function UsedCarsPage({ searchParams }: Props) {
               </span>
             </div>
           </Link>
-        ))}
+        </Fragment>
+      ))}
       </div>
 
       {/* Bottom Ad Banner */}

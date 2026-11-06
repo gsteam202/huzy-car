@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CommentSection } from "@/components/community/comment-section";
+import AdBanner from "@/components/ads/ad-banner";
 import { ArrowLeft, Eye, ThumbsUp, Calendar, User, Share2 } from "lucide-react";
 
 export const revalidate = 10;
@@ -43,6 +44,9 @@ export default async function PostDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+      {/* Top Banner */}
+      <AdBanner slot="page-top-slot" compact />
+
       {/* Back button */}
       <Link
         href={`/community?board=${post.board.slug}`}
@@ -86,9 +90,15 @@ export default async function PostDetailPage({ params }: Props) {
           {post.content}
         </div>
 
+        {/* Mid Ad Banner between Post Content and Comments */}
+        <AdBanner slot="content-mid-slot" />
+
         {/* Comments Section */}
         <CommentSection postId={post.id} initialComments={post.comments} />
       </article>
+
+      {/* Bottom Ad Banner */}
+      <AdBanner slot="content-bottom-slot" />
     </div>
   );
 }

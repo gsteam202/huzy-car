@@ -388,6 +388,9 @@ function BudgetCalculatorContent() {
             </div>
           </div>
 
+          {/* Mid Content Ad Banner */}
+          <AdBanner slot="content-mid-slot" />
+
           {/* Results List */}
           {sortedItems.length === 0 ? (
             <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">

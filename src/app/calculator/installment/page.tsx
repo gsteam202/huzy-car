@@ -341,6 +341,9 @@ export default function InstallmentCalculatorPage() {
             </div>
           </div>
 
+          {/* Mid Content Ad Banner */}
+          <AdBanner slot="content-mid-slot" />
+
           {/* Early Repayment Simulator */}
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
