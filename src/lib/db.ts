@@ -5,6 +5,14 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function safeDecode(val: string): string {
+  try {
+    return decodeURIComponent(val);
+  } catch {
+    return val;
+  }
+}
+
 function createPrismaClient(): PrismaClient {
   const urlString = process.env.DATABASE_URL;
   if (!urlString) {
@@ -12,12 +20,19 @@ function createPrismaClient(): PrismaClient {
   }
 
   const url = new URL(urlString);
+  const useSsl =
+    url.searchParams.get("ssl") === "true" ||
+    url.searchParams.get("sslaccept") === "strict" ||
+    process.env.DB_SSL === "true" ||
+    process.env.DB_SSL === "1";
+
   const adapter = new PrismaMariaDb({
     host: url.hostname,
     port: Number(url.port || 3306),
-    user: decodeURIComponent(url.username),
-    password: decodeURIComponent(url.password),
+    user: safeDecode(url.username),
+    password: safeDecode(url.password),
     database: url.pathname.slice(1),
+    ssl: useSsl ? { rejectUnauthorized: false } : undefined,
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 5),
     connectTimeout: 5000,
     idleTimeout: Number(process.env.DB_IDLE_TIMEOUT_SECONDS || 60),
