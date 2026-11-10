@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -15,6 +15,21 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const authErrorParam = searchParams.get("error");
+  useEffect(() => {
+    if (authErrorParam) {
+      if (authErrorParam === "OAuthCallback" || authErrorParam === "OAuthSignin" || authErrorParam === "Configuration") {
+        setError("구글 로그인 연동 중 오류가 발생했습니다. 다시 시도해주세요.");
+      } else if (authErrorParam === "OAuthAccountNotLinked") {
+        setError("동일한 이메일로 이미 가입된 계정이 있습니다.");
+      } else if (authErrorParam === "AccessDenied") {
+        setError("구글 로그인 접근 권한 요청이 취소되었습니다.");
+      } else {
+        setError("로그인 처리 중 문제가 발생했습니다 (" + authErrorParam + ").");
+      }
+    }
+  }, [authErrorParam]);
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
     e.preventDefault();

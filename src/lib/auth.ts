@@ -11,6 +11,25 @@ const loginSchema = z.object({
   password: z.string().min(6),
 });
 
+export const DEFAULT_ADMIN_EMAILS = [
+  "didwlajfl8418@gmail.com",
+  ...(process.env.ADMIN_EMAIL ? [process.env.ADMIN_EMAIL.toLowerCase().trim()] : []),
+];
+
+export function isDefaultAdmin(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.toLowerCase().trim();
+  return DEFAULT_ADMIN_EMAILS.some((admin) => admin.toLowerCase().trim() === normalized);
+}
+
+function resolveProviderFactory<T = any>(mod: any): T {
+  const resolved = mod?.default?.default || mod?.default || mod;
+  return typeof resolved === "function" ? resolved : mod;
+}
+
+const buildGoogleProvider = resolveProviderFactory(GoogleProvider);
+const buildCredentialsProvider = resolveProviderFactory(CredentialsProvider);
+
 export const authOptions: AuthOptions = {
   // We use JWT strategy for performance, low server overhead and seamless Server Components
   session: {
@@ -25,20 +44,20 @@ export const authOptions: AuthOptions = {
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
-          GoogleProvider({
+          buildGoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            allowDangerousEmailAccountLinking: false, // Strict security
+            allowDangerousEmailAccountLinking: true,
           }),
         ]
       : []),
-    CredentialsProvider({
+    buildCredentialsProvider({
       name: "이메일 로그인",
       credentials: {
         email: { label: "이메일", type: "email" },
         password: { label: "비밀번호", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials: Record<string, string> | undefined) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("이메일과 비밀번호를 입력해주세요.");
         }
@@ -61,12 +80,21 @@ export const authOptions: AuthOptions = {
           throw new Error("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
+        const isAdmin = isDefaultAdmin(user.email);
+        if (isAdmin && user.role !== "ADMIN") {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { role: "ADMIN" },
+          });
+          user.role = "ADMIN";
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.nickname,
           image: user.avatarUrl,
-          role: user.role,
+          role: isAdmin ? "ADMIN" : user.role,
         };
       },
     }),
@@ -76,6 +104,7 @@ export const authOptions: AuthOptions = {
       if (account?.provider === "google") {
         if (!user.email) return false;
         const normalizedEmail = user.email.toLowerCase().trim();
+        const isAdmin = isDefaultAdmin(normalizedEmail);
 
         // Find or create user
         let existingUser = await prisma.user.findUnique({
@@ -97,7 +126,7 @@ export const authOptions: AuthOptions = {
               email: normalizedEmail,
               nickname: candidate,
               avatarUrl: user.image,
-              role: "USER",
+              role: isAdmin ? "ADMIN" : "USER",
               marketingConsent: false,
               accounts: {
                 create: {
@@ -116,6 +145,23 @@ export const authOptions: AuthOptions = {
             include: { accounts: true },
           });
         } else {
+          // If default admin, always guarantee role is ADMIN in DB
+          if (isAdmin && existingUser.role !== "ADMIN") {
+            existingUser = await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { role: "ADMIN" },
+              include: { accounts: true },
+            });
+          }
+
+          // Sync avatar if user image provided
+          if (user.image && user.image !== existingUser.avatarUrl) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { avatarUrl: user.image },
+            });
+          }
+
           // Check if Google account already linked
           const hasGoogle = existingUser.accounts.some(
             (a) => a.provider === "google" && a.providerAccountId === account.providerAccountId
@@ -138,29 +184,41 @@ export const authOptions: AuthOptions = {
           }
         }
         user.id = existingUser.id;
-        (user as any).role = existingUser.role;
+        (user as any).role = isAdmin ? "ADMIN" : existingUser.role;
+        user.name = existingUser.nickname || user.name;
+        user.image = existingUser.avatarUrl || user.image;
       }
       return true;
     },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || "USER";
         token.name = user.name;
         token.email = user.email;
+        token.image = user.image;
+        const normalizedEmail = (user.email || "").toLowerCase().trim();
+        token.role = isDefaultAdmin(normalizedEmail) ? "ADMIN" : (user as any).role || "USER";
+      }
+      const tokenEmail = ((token.email as string) || "").toLowerCase().trim();
+      if (isDefaultAdmin(tokenEmail)) {
+        token.role = "ADMIN";
       }
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;
-        if (session.role) token.role = session.role;
+        if (session.role) token.role = isDefaultAdmin(tokenEmail) ? "ADMIN" : session.role;
+        if (session.image) token.image = session.image;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token) {
+        const tokenEmail = ((token.email as string) || session.user.email || "").toLowerCase().trim();
+        const role = isDefaultAdmin(tokenEmail) ? "ADMIN" : (token.role as string) || "USER";
         (session.user as any).id = token.id as string;
-        (session.user as any).role = token.role as string;
+        (session.user as any).role = role;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
+        session.user.image = (token.image as string) || session.user.image;
       }
       return session;
     },
