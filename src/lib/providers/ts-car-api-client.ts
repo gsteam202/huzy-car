@@ -89,7 +89,7 @@ export class TsCarApiClient {
   private readonly isMockMode: boolean;
 
   constructor() {
-    this.apiKey = process.env.TS_CAR_API_KEY || process.env.MOLIT_API_KEY;
+    this.apiKey = process.env.TS_CAR_API_KEY || process.env.MOLIT_OPEN_API_SERVICE_KEY || process.env.MOLIT_API_KEY;
     this.endpoint =
       process.env.TS_CAR_API_ENDPOINT ||
       "https://apis.data.go.kr/1613000/CarInfoService";

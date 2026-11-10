@@ -7,17 +7,17 @@ import {
 import { prisma } from "@/lib/db";
 
 /**
- * 국토교통부 자동차종합정보 API 어댑터
- * 현재 정부 공공데이터 포털 심사/승인 단계이므로 Mock 데이터 공급 및
- * 정규화 파이프라인을 온전히 구현하여 승인 완료 시 즉시 키 주입으로 실동작하도록 구현.
+ * 국토교통부·한국교통안전공단 자동차종합정보 API 어댑터
+ * 공공데이터포털 승인 완료 및 인증키 연동 가동.
  */
 export class MolitDataProvider implements CarDataProvider {
   readonly code = "molit_gov";
-  readonly name = "국토교통부 자동차종합정보 API (공공데이터포털)";
+  readonly name = "국토교통부·한국교통안전공단 자동차종합정보 API (공공데이터포털 승인 완료)";
   readonly isMock: boolean;
 
   constructor() {
-    this.isMock = !process.env.MOLIT_API_KEY || process.env.MOLIT_API_KEY === "mock_stage";
+    const key = process.env.TS_CAR_API_KEY || process.env.MOLIT_OPEN_API_SERVICE_KEY || process.env.MOLIT_API_KEY;
+    this.isMock = !key || key === "mock_stage" || key === "MOCK_STAGE";
   }
 
   isAvailable(): boolean {

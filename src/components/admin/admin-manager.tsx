@@ -176,15 +176,15 @@ export function AdminManager({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
           <div>
             <h2 className="font-extrabold text-lg text-slate-900 flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
               <span>한국교통안전공단(TS) 자동차종합정보 첨부형 API 연동 현황</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              공공데이터포털 제공 승인 완료 (매매상품용 및 소유자 3자정보제공동의 차량)
+              공공데이터포털 정식 승인 완료 및 인증키 연동 가동 중 (매매상품용 및 소유자 3자정보제공동의 차량)
             </p>
           </div>
-          <span className="self-start sm:self-auto px-2.5 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">
-            실시간 연동 가동 중 (Mock & Live Fallback)
+          <span className="self-start sm:self-auto px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">
+            공공데이터포털 정식 승인 완료 (실시간 API 가동 중)
           </span>
         </div>
 

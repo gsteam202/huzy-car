@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { AdminManager } from "@/components/admin/admin-manager";
+import { AdminTabs } from "@/components/admin/admin-tabs";
 import { ShieldCheck, Database, FileSpreadsheet, RefreshCw, Users, Car } from "lucide-react";
 
 export const revalidate = 0;
@@ -69,6 +70,9 @@ export default async function AdminPage() {
           <div className="text-2xl font-black text-purple-600">{postCount}건</div>
         </div>
       </div>
+
+      {/* Admin Navigation Tabs */}
+      <AdminTabs userCount={userCount} carCount={modelCount} />
 
       {/* Interactive Admin Manager (Sync & Batch Upload) */}
       <AdminManager dataSources={dataSources} auditLogs={auditLogs} />
