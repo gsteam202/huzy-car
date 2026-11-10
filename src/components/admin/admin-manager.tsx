@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw, Upload, CheckCircle2, AlertCircle, Database, FileText } from "lucide-react";
+import { RefreshCw, Upload, CheckCircle2, AlertCircle, Database, FileText, ShieldCheck, Phone, Info, Car } from "lucide-react";
 
 export function AdminManager({
   dataSources,
@@ -168,6 +168,65 @@ export function AdminManager({
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* TS Attached API Information */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-blue-100 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+          <div>
+            <h2 className="font-extrabold text-lg text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              <span>한국교통안전공단(TS) 자동차종합정보 첨부형 API 연동 현황</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              공공데이터포털 제공 승인 완료 (매매상품용 및 소유자 3자정보제공동의 차량)
+            </p>
+          </div>
+          <span className="self-start sm:self-auto px-2.5 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">
+            실시간 연동 가동 중 (Mock & Live Fallback)
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <span>1. 자동차기본정보 API</span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              차명, 차종, 최초등록일, 연료구분, 배기량, 번호판 상태, 소유구분
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <span>2. 제원정보1 API</span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              길이, 너비, 높이, 차량중량, 축간거리, 전후륜간거리
+            </p>
+          </div>
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <span>3. 제원정보2 API</span>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              원동기형식, 기통수, 최고출력(ps/rpm), 변속기단수, 승차정원, CO2
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs text-amber-900 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-amber-950">
+            <Phone className="w-4 h-4 text-amber-700" />
+            <span>한국교통안전공단 실운영 IP 등록 및 이용 절차 안내</span>
+          </div>
+          <p className="leading-relaxed text-[11px]">
+            공공데이터포털 제공 승인 후 한국교통안전공단 정보운영처(<strong>054-459-7512</strong>)와 별도 이용 절차 협의가 필요합니다.
+            운영 서버의 공인 IP(Edge: <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">58.229.6.222</code>, App: <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">129.203.154.196</code>)를 공단 방화벽에 등록 후 제공받은 서비스 인증키를 환경변수 <code className="font-mono bg-white px-1 py-0.5 rounded border border-amber-200">TS_CAR_API_KEY</code>로 지정하면 자동으로 실시간 공단 첨부형 API로 전환됩니다.
+          </p>
         </div>
       </div>
 

@@ -27,6 +27,7 @@ export function Navbar() {
   const navLinks = [
     { href: "/new-cars", label: "신차 검색", icon: Car },
     { href: "/used-cars", label: "중고차 시세", icon: Compass },
+    { href: "/lookup", label: "차량번호 조회", icon: Search, badge: "공단인증" },
     { href: "/calculator/budget", label: "내 예산 맞춤 추천", icon: Calculator, highlight: true },
     { href: "/calculator/installment", label: "할부 계산기", icon: Calculator },
     { href: "/compare", label: "차량 비교", icon: Layers },
@@ -77,6 +78,11 @@ export function Navbar() {
                     }`}
                   >
                     {link.label}
+                    {link.badge && (
+                      <span className="px-1.5 py-0.5 text-[10px] bg-emerald-600 text-white rounded-full font-bold">
+                        {link.badge}
+                      </span>
+                    )}
                     {link.highlight && (
                       <span className="px-1.5 py-0.5 text-[10px] bg-blue-600 text-white rounded-full font-bold">
                         HOT
@@ -192,11 +198,18 @@ export function Navbar() {
                     <link.icon className="w-5 h-5 text-slate-500" />
                     {link.label}
                   </span>
-                  {link.highlight && (
-                    <span className="px-2 py-0.5 text-xs bg-blue-600 text-white rounded-full font-bold">
-                      추천
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {link.badge && (
+                      <span className="px-2 py-0.5 text-xs bg-emerald-600 text-white rounded-full font-bold">
+                        {link.badge}
+                      </span>
+                    )}
+                    {link.highlight && (
+                      <span className="px-2 py-0.5 text-xs bg-blue-600 text-white rounded-full font-bold">
+                        추천
+                      </span>
+                    )}
+                  </div>
                 </Link>
               );
             })}
