@@ -54,6 +54,7 @@ export function Navbar() {
   ];
 
   const secondaryNavLinks = [
+    { href: "/calculator/tax", label: "취등록세·자동차세", shortLabel: "세금계산기", icon: Calculator, desc: "취등록세 감면 및 연간 자동차세 계산" },
     { href: "/calculator/installment", label: "할부 계산기", shortLabel: "할부계산기", icon: Calculator, desc: "금리·선납금별 월 납입금 계산" },
     { href: "/compare", label: "차량 비교", shortLabel: "차량비교", icon: Layers, desc: "최대 3대 제원 및 가격 동시 비교" },
   ];
