@@ -56,6 +56,8 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <meta name="naver-site-verification" content="356ee301e0e87d7b038ae3033a166e9a994dbd51" />
+        <meta name="google-site-verification" content="XPkg0dTNT-GqQHpv36nb23ZSu2ZsN8NNQ-RhqTf531Q" />
+        <meta name="msvalidate.01" content="BE791BD749DEB6457FC7C93C8090B556" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
