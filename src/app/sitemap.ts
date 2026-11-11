@@ -18,14 +18,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Common vehicle segment & fuel categories for organic landing indexing
   const categoryRoutes: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/new-cars?type=SEDAN`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?type=SUV`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?type=COMPACT`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?type=RV`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?fuel=HYBRID`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?fuel=ELECTRIC`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/new-cars?fuel=GASOLINE`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${baseUrl}/used-cars?fuel=HYBRID`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/new-cars?type=SEDAN`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?type=SUV`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?type=COMPACT`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?type=RV`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?fuel=HYBRID`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?fuel=ELECTRIC`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?fuel=GASOLINE`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
+    { url: `${baseUrl}/new-cars?price=2000`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/new-cars?price=3000`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/new-cars?price=4000`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/new-cars?price=5000`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${baseUrl}/used-cars?type=SEDAN`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?type=SUV`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?fuel=HYBRID`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?fuel=ELECTRIC`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?fuel=GASOLINE`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?fuel=DIESEL`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${baseUrl}/used-cars?price=1000`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/used-cars?price=2000`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/used-cars?price=3000`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
   ];
 
   try {

@@ -23,6 +23,9 @@ export const siteMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: SITE_URL,
+    types: {
+      "application/rss+xml": "/rss.xml",
+    },
   },
   keywords: SITE_KEYWORDS,
   icons: {
