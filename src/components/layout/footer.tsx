@@ -95,6 +95,9 @@ export function Footer() {
               <p className="text-[11px] text-slate-500">
                 실제 차량 구입 시점의 제조사 프로모션, 딜러 할인, 지자체 보조금 잔여 현황 및 금융사 승인 금리에 따라 최종 결제 금액은 상이할 수 있습니다.
               </p>
+              <p className="pt-2 text-xs text-slate-300">
+                고객문의: <a href="mailto:customer@huzy.net" className="text-blue-400 hover:underline">customer@huzy.net</a>
+              </p>
             </div>
           </div>
         </div>
