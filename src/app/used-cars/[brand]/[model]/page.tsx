@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
@@ -33,7 +33,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 
   if (!model) {
-    return { title: "중고차 시세 정보를 찾을 수 없습니다 | CAR HUZY" };
+    const brand = await prisma.carBrand.findFirst({
+      where: { slug: brandSlug, isActive: true },
+      select: { slug: true },
+    });
+    if (brand) {
+      permanentRedirect(`/used-cars?brand=${brand.slug}`);
+    }
+    permanentRedirect("/used-cars");
   }
 
   const title = `${model.brand.nameKo} ${model.nameKo} 중고차 실거래 시세·감가율 분석 | CAR HUZY`;
@@ -81,7 +88,14 @@ export default async function UsedCarModelTrendsPage({ params }: Props) {
   });
 
   if (!model) {
-    notFound();
+    const brand = await prisma.carBrand.findFirst({
+      where: { slug: brandSlug, isActive: true },
+      select: { slug: true },
+    });
+    if (brand) {
+      permanentRedirect(`/used-cars?brand=${brand.slug}`);
+    }
+    permanentRedirect("/used-cars");
   }
 
   const chartData = model.marketStats.map((s) => ({

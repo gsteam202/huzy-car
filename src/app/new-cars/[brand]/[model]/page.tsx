@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
@@ -37,9 +37,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
 
   if (!model) {
-    return {
-      title: "차량을 찾을 수 없습니다 | CAR HUZY",
-    };
+    const brand = await prisma.carBrand.findFirst({
+      where: { slug: brandSlug, isActive: true },
+      select: { slug: true },
+    });
+    if (brand) {
+      permanentRedirect(`/new-cars?brand=${brand.slug}`);
+    }
+    permanentRedirect("/new-cars");
   }
 
   const title = `${model.brand.nameKo} ${model.nameKo} 신차 가격표·제원·할부 견적 | CAR HUZY`;
@@ -106,7 +111,14 @@ export default async function CarDetailPage({ params }: Props) {
   });
 
   if (!model) {
-    notFound();
+    const brand = await prisma.carBrand.findFirst({
+      where: { slug: brandSlug, isActive: true },
+      select: { slug: true },
+    });
+    if (brand) {
+      permanentRedirect(`/new-cars?brand=${brand.slug}`);
+    }
+    permanentRedirect("/new-cars");
   }
 
   const currentYear = model.generations[0]?.modelYears[0];
