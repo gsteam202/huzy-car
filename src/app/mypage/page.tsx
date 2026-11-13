@@ -1,3 +1,4 @@
+import AccountWithdrawal from '@/components/account-withdrawal';
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
@@ -277,6 +278,7 @@ export default async function MyPage() {
           )}
         </div>
       </div>
+      <AccountWithdrawal />
     </div>
   );
 }

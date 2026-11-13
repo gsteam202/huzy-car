@@ -212,8 +212,11 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (session.user && token) {
+        const id = typeof token.id === "string" ? token.id : token.sub;
+        const current = id ? await prisma.user.findUnique({ where: { id }, select: { id: true, role: true } }) : null;
+        if (!current) { session.user = undefined as unknown as typeof session.user; return session; }
         const tokenEmail = ((token.email as string) || session.user.email || "").toLowerCase().trim();
-        const role = isDefaultAdmin(tokenEmail) ? "ADMIN" : (token.role as string) || "USER";
+        const role = current.role;
         (session.user as any).id = token.id as string;
         (session.user as any).role = role;
         session.user.name = token.name as string;
