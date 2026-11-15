@@ -1,3 +1,8 @@
+import { unstable_cache } from 'next/cache';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { catalogPage, catalogPageHref } from '@/lib/catalog-pagination';
+import { CatalogPagination } from '@/components/common/catalog-pagination';
 import { Fragment } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -10,11 +15,38 @@ interface Props {
   searchParams: Promise<{
     board?: string;
     q?: string;
+    page?: string;
   }>;
 }
 
+const loadCatalog = unstable_cache(async (where: any, page: number) => {
+  const total = await prisma.post.count({ where });
+  if (page > Math.max(1, Math.ceil(total / 30))) return { total, posts: [] };
+
+  const posts = await prisma.post.findMany({
+    where,
+    include: {
+      board: true,
+      author: {
+        select: { nickname: true, role: true },
+      },
+    },
+    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }, { id: "desc" }],
+    take: 30,
+    skip: (page - 1) * 30,
+  });
+  return { total, posts };
+}, ['car-community-catalog-v1'], { revalidate: 30 });
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { board: boardSlug, q, page: rawPage } = await searchParams;
+  const page = catalogPage(rawPage); if (page === null) notFound();
+  return { title: `자동차 커뮤니티${page > 1 ? ' · ' + page + '페이지' : ''} | CAR HUZY`, alternates: { canonical: 'https://car.huzy.net' + catalogPageHref('/community', page, { board: boardSlug, q }) }, robots: { index: !(q || boardSlug), follow: true } };
+}
+
 export default async function CommunityPage({ searchParams }: Props) {
-  const { board: boardSlug, q } = await searchParams;
+  const { board: boardSlug, q, page: rawPage } = await searchParams;
+  const page = catalogPage(rawPage); if (page === null) notFound();
 
   const boards = await prisma.board.findMany({
     where: { isActive: true },
@@ -32,17 +64,8 @@ export default async function CommunityPage({ searchParams }: Props) {
     ];
   }
 
-  const posts = await prisma.post.findMany({
-    where,
-    include: {
-      board: true,
-      author: {
-        select: { nickname: true, role: true },
-      },
-    },
-    orderBy: [{ isPinned: "desc" }, { createdAt: "desc" }],
-    take: 30,
-  });
+  const { total, posts } = await loadCatalog(where, page);
+  if (page > Math.max(1, Math.ceil(total / 30))) notFound();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -163,6 +186,7 @@ export default async function CommunityPage({ searchParams }: Props) {
 
       {/* Bottom Ad Banner */}
       <AdBanner slot="content-bottom-slot" />
+      <CatalogPagination path="/community" page={page} total={total} filters={{ board: boardSlug, q }} />
     </div>
   );
 }

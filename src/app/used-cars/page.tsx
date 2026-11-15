@@ -1,3 +1,8 @@
+import { unstable_cache } from 'next/cache';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { catalogPage, catalogPageHref } from '@/lib/catalog-pagination';
+import { CatalogPagination } from '@/components/common/catalog-pagination';
 import { Fragment } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -13,13 +18,38 @@ interface Props {
     brand?: string;
     model?: string;
     q?: string;
+    page?: string;
     fuel?: string;
     maxPrice?: string;
   }>;
 }
 
+const loadCatalog = unstable_cache(async (where: any, page: number) => {
+  const total = await prisma.usedCarListing.count({ where });
+  if (page > Math.max(1, Math.ceil(total / 30))) return { total, listings: [] };
+
+  const listings = await prisma.usedCarListing.findMany({
+    where,
+    include: {
+      brand: true,
+      model: true,
+    },
+    orderBy: [{ listedAt: "desc" }, { id: "desc" }],
+    take: 30,
+    skip: (page - 1) * 30,
+  });
+  return { total, listings };
+}, ['car-used-cars-catalog-v1'], { revalidate: 60 });
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { brand, model, q, fuel, maxPrice, page: rawPage } = await searchParams;
+  const page = catalogPage(rawPage); if (page === null) notFound();
+  return { title: `중고차 목록${page > 1 ? ' · ' + page + '페이지' : ''} | CAR HUZY`, alternates: { canonical: 'https://car.huzy.net' + catalogPageHref('/used-cars', page, { brand, model, q, fuel, maxPrice }) }, robots: { index: !(brand || model || q || fuel || maxPrice), follow: true } };
+}
+
 export default async function UsedCarsPage({ searchParams }: Props) {
-  const { brand, model, q, fuel, maxPrice } = await searchParams;
+  const { brand, model, q, fuel, maxPrice, page: rawPage } = await searchParams;
+  const page = catalogPage(rawPage); if (page === null) notFound();
 
   const brands = await prisma.carBrand.findMany({
     where: { isActive: true },
@@ -39,15 +69,8 @@ export default async function UsedCarsPage({ searchParams }: Props) {
     ];
   }
 
-  const listings = await prisma.usedCarListing.findMany({
-    where,
-    include: {
-      brand: true,
-      model: true,
-    },
-    orderBy: { listedAt: "desc" },
-    take: 30,
-  });
+  const { total, listings } = await loadCatalog(where, page);
+  if (page > Math.max(1, Math.ceil(total / 30))) notFound();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -156,6 +179,7 @@ export default async function UsedCarsPage({ searchParams }: Props) {
 
       {/* Bottom Ad Banner */}
       <AdBanner slot="content-bottom-slot" />
+      <CatalogPagination path="/used-cars" page={page} total={total} filters={{ brand, model, q, fuel, maxPrice }} />
     </div>
   );
 }

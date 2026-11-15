@@ -14,6 +14,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "node --loader tsx/esm scripts/seed.ts",
+    "test:catalog": "node --test tests/catalog-pagination.test.mjs",
     "test:withdrawal": "node --test tests/account-withdrawal.test.mjs"
   },
   "dependencies": {
