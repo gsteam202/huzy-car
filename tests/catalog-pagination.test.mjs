@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {createRequire} from 'node:module';
-const require=createRequire(import.meta.url),ts=require(process.env.TYPESCRIPT_PATH||'typescript');
+const require=createRequire(import.meta.url),esbuild=require(process.env.ESBUILD_PATH||'esbuild');
 const root=new URL('../',import.meta.url),jsx=(type,props)=>({type,props});
-const code=path=>ts.transpileModule(fs.readFileSync(new URL(path,root),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
-function evaluate(path,mocks){const exports={};vm.runInNewContext(code(path),{exports,URLSearchParams,require:id=>{assert.ok(id in mocks,id);return mocks[id];}});return exports;}
+const code=path=>esbuild.transformSync(fs.readFileSync(new URL(path,root),'utf8'),{loader:'tsx',format:'cjs',target:'es2022',jsx:'automatic'}).code;
+function evaluate(path,mocks){const module={exports:{}},exports=module.exports;vm.runInNewContext(code(path),{module,exports,URLSearchParams,require:id=>{assert.ok(id in mocks,id);return mocks[id];}});return module.exports;}
 const basic={'react/jsx-runtime':{jsx,jsxs:jsx},react:{Fragment:'fragment'},'next/link':{__esModule:true,default:'a'},'next/cache':{unstable_cache:f=>f},'next/navigation':{notFound:()=>{throw Error('404');}},'lucide-react':new Proxy({},{get:(_,key)=>key})};
 const pagination=evaluate('src/lib/catalog-pagination.ts',basic);
 const nav=evaluate('src/components/common/catalog-pagination.tsx',{...basic,'@/lib/catalog-pagination':pagination});
